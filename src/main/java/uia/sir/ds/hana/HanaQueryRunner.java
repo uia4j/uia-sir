@@ -20,11 +20,12 @@ public class HanaQueryRunner extends QueryRunner {
 
     @Override
     protected List<Map<String, Object>> select(QueryPlan plan) throws Exception {
-        SimpleWhere where = HanaKoV.and(plan.getCriteria());
+        SimpleWhere where = HanaKoV.and(plan.getCriteria(), this.dao.isSaveUTC());
 
         List<Map<String, Object>> result = this.dao.select(
                 plan.getColumns(),
-                where);
+                where,
+                plan.getValueReaders());
         return result;
     }
 
@@ -32,7 +33,8 @@ public class HanaQueryRunner extends QueryRunner {
     protected List<Map<String, Object>> aggregate(QueryPlan plan) throws Exception {
         List<Map<String, Object>> result = this.dao.aggregate(
                 plan.getColumns(),
-                HanaKoV.and(plan.getCriteria()),
+                HanaKoV.and(plan.getCriteria(), this.dao.isSaveUTC()),
+                plan.getValueReaders(),
                 create(plan.getAccumulators()));
         return result;
     }
@@ -46,7 +48,8 @@ public class HanaQueryRunner extends QueryRunner {
         List<Map<String, Object>> result = this.dao.daily(
                 plan.getColumns(),
                 plan.getTimeColumn(),
-                HanaKoV.and(plan.getCriteria()),
+                HanaKoV.and(plan.getCriteria(), true),
+                plan.getValueReaders(),
                 create(plan.getAccumulators()));
         return result;
     }
@@ -60,7 +63,8 @@ public class HanaQueryRunner extends QueryRunner {
         List<Map<String, Object>> result = this.dao.weekly(
                 plan.getColumns(),
                 plan.getTimeColumn(),
-                HanaKoV.and(plan.getCriteria()),
+                HanaKoV.and(plan.getCriteria(), true),
+                plan.getValueReaders(),
                 create(plan.getAccumulators()));
         return result;
     }
@@ -74,7 +78,8 @@ public class HanaQueryRunner extends QueryRunner {
         List<Map<String, Object>> result = this.dao.monthly(
                 plan.getColumns(),
                 plan.getTimeColumn(),
-                HanaKoV.and(plan.getCriteria()),
+                HanaKoV.and(plan.getCriteria(), true),
+                plan.getValueReaders(),
                 create(plan.getAccumulators()));
         return result;
     }
@@ -88,7 +93,8 @@ public class HanaQueryRunner extends QueryRunner {
         List<Map<String, Object>> result = this.dao.quarter(
                 plan.getColumns(),
                 plan.getTimeColumn(),
-                HanaKoV.and(plan.getCriteria()),
+                HanaKoV.and(plan.getCriteria(), true),
+                plan.getValueReaders(),
                 create(plan.getAccumulators()));
         return result;
     }
@@ -99,7 +105,7 @@ public class HanaQueryRunner extends QueryRunner {
             if (Accumulator.count.equals(acc.getType())) {
                 accImpl = accImpl.count(acc.getOutputField());
             }
-            else if (Accumulator.count_distinct.equals(acc.getType())) {
+            else if (Accumulator.countDistinct.equals(acc.getType())) {
                 accImpl = accImpl.countDistinct(acc.getOutputField(), acc.getAccField());
             }
             else if (Accumulator.sum.equals(acc.getType())) {

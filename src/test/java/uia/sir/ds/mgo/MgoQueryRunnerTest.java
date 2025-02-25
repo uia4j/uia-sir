@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.junit.Test;
 
+import uia.sir.HandleEx;
 import uia.sir.ds.Client;
 import uia.sir.ds.ClientFactory;
 import uia.sir.simple.Accumulator;
@@ -20,8 +21,8 @@ public class MgoQueryRunnerTest extends AbstractTest {
         // plan> collecitonName, method
         QueryPlan plan = new QueryPlan("report_info", QueryPlan.select);
         // plan> columns
-        plan.getColumns().add("report_id");
-        plan.getColumns().add("fab_op_name");
+        plan.addColumn("report_id");
+        plan.addColumn("fab_op_name", v -> HandleEx.trim((String) v));
         // plan> criteria
         plan.getCriteria().add(KoV.eq("fab_lot_name", "SFCBO:1020,BF2AM008.1"));
         // plan> orderBy
@@ -41,7 +42,7 @@ public class MgoQueryRunnerTest extends AbstractTest {
         // plan> collecitonName, method
         QueryPlan plan = new QueryPlan("report_info", QueryPlan.daily);
         // plan> columns
-        plan.getColumns().add("fab_op_name");
+        plan.addColumn("fab_op_name", v -> HandleEx.trim((String) v));
         // plan> criteria
         plan.getCriteria().add(KoV.between(
                 "upload_time",

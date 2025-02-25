@@ -12,53 +12,67 @@ public abstract class ClientFactory {
 
     public static final String MGODB = "MGODB";
 
-    private static final Map<String, ClientFactory> factories;
+    private static final Map<String, ClientFactory> dbTypeClients;
 
-    private static final Map<String, ClientFactory> names;
+    private static final Map<String, String> servDbTypes;
 
     static {
-        factories = new TreeMap<>();
-        factories.put(HANA, new HanaClientFactory());
-        factories.put(MGODB, new MgoClientFactory());
+        dbTypeClients = new TreeMap<>();
+        dbTypeClients.put(HANA, new HanaClientFactory());
+        dbTypeClients.put(MGODB, new MgoClientFactory());
 
-        names = new TreeMap<>();
+        servDbTypes = new TreeMap<>();
 
     }
 
-    public static <T extends ClientFactory> void register(String factoryName, String name, String host, int port, String user, String pwd) throws Exception {
-        ClientFactory factory = factories.get(factoryName);
-        if (factory == null) {
-            throw new Exception(factoryName + " NOT FOUND");
+    public static <T extends ClientFactory> void register(
+            String dbType,
+            String servName,
+            String host,
+            int port,
+            String user,
+            String pwd,
+            boolean saveUTC) throws Exception {
+        ClientFactory dbFactory = dbTypeClients.get(dbType);
+        if (dbFactory == null) {
+            throw new Exception(dbType + " NOT FOUND");
         }
-        if (names.containsKey(name)) {
-            throw new Exception(name + " is exist");
+        if (servDbTypes.containsKey(servName)) {
+            throw new Exception(servName + " is exist");
         }
 
-        factory.register(name, host, port, user, pwd);
-        names.put(name, factory);
+        dbFactory.register(servName, host, port, user, pwd, saveUTC);
+        servDbTypes.put(servName, dbType);
     }
 
-    public static <T extends ClientFactory> void register(String factoryName, String name, String[] hosts, int port, String user, String pwd) throws Exception {
-        ClientFactory factory = factories.get(factoryName);
-        if (factory == null) {
-            throw new NullPointerException(factoryName + " NOT FOUND");
+    public static <T extends ClientFactory> void register(
+            String dbType,
+            String servName,
+            String[] hosts,
+            int[] ports,
+            String user,
+            String pwd,
+            boolean saveUTC) throws Exception {
+        ClientFactory dbFactory = dbTypeClients.get(dbType);
+        if (dbFactory == null) {
+            throw new NullPointerException(dbType + " NOT FOUND");
         }
-        if (names.containsKey(name)) {
-            throw new Exception(name + " is exist");
+        if (servDbTypes.containsKey(servName)) {
+            throw new Exception(servName + " is exist");
         }
 
-        factory.register(name, hosts, port, user, pwd);
-        names.put(name, factory);
+        dbFactory.register(servName, hosts, ports, user, pwd, saveUTC);
+        servDbTypes.put(servName, dbType);
     }
 
-    public static Client client(String name) throws Exception {
-        return names.get(name).create(name);
+    public static Client client(String servName) throws Exception {
+        String dbType = servDbTypes.get(servName);
+        return dbTypeClients.get(dbType).create(servName);
     }
 
-    public abstract void register(String name, String hosts, int port, String user, String pwd) throws Exception;
+    public abstract void register(String servName, String hosts, int port, String user, String pwd, boolean saveUTC) throws Exception;
 
-    public abstract void register(String name, String[] hosts, int port, String user, String pwd) throws Exception;
+    public abstract void register(String servName, String[] hosts, int[] ports, String user, String pwd, boolean saveUTC) throws Exception;
 
-    public abstract Client create(String name) throws Exception;
-
+    public abstract Client create(String servName) throws Exception;
 }

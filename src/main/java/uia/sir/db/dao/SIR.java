@@ -1,14 +1,10 @@
-package uia.sir.ds.mgo.db;
+package uia.sir.db.dao;
 
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
@@ -21,65 +17,66 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.connection.ClusterConnectionMode;
 import com.mongodb.connection.ClusterType;
 
-import uia.sir.ds.Client;
-import uia.sir.ds.ClientFactory;
+public class SIR {
 
-public class MgoClientFactory extends ClientFactory {
+    private static MongoClientSettings client_settings;
 
-    private final CodecRegistry codec_registry;
+    private static CodecRegistry codec_registry;
 
-    private final Map<String, MongoClient> clients;
+    private static MongoClient client;
 
-    public MgoClientFactory() {
+    public static void initial(String ip, int port, String user, String pwd) throws Exception {
         CodecRegistry pojoCodecRegistry = fromProviders(PojoCodecProvider.builder().automatic(true).build());
-        this.codec_registry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), pojoCodecRegistry);
-        this.clients = new TreeMap<>();
-    }
 
-    @Override
-    public void register(String name, String ip, int port, String user, String pwd, boolean saveUTC) throws NamingException {
+        codec_registry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), pojoCodecRegistry);
         if (port > 0) {
             String conn = (user == null || user.trim().isEmpty())
                     ? String.format("mongodb://%s:%s", ip, port)
                     : String.format("mongodb://%s:%s@%s:%s", user, pwd, ip, port);
-            MongoClientSettings clientSettings = MongoClientSettings
+            client_settings = MongoClientSettings
                     .builder()
                     .applyConnectionString(new ConnectionString(conn))
                     .applyToClusterSettings(builder -> builder.mode(ClusterConnectionMode.SINGLE).requiredClusterType(ClusterType.STANDALONE))
-                    .codecRegistry(this.codec_registry)
+                    .codecRegistry(codec_registry)
                     .readPreference(ReadPreference.secondaryPreferred())
                     .build();
-            this.clients.put(name, MongoClients.create(clientSettings));
+            client = MongoClients.create(client_settings);
         }
         else {
             Context ctx = new InitialContext();
-            this.clients.put(name, (MongoClient) ctx.lookup(ip));
+            client = (MongoClient) ctx.lookup(ip);
         }
     }
 
-    @Override
-    public void register(String name, String[] hosts, int[] ports, String user, String pwd, boolean saveUTC) throws NamingException {
+    public static void initial(String[] hosts, int[] ports, String user, String pwd) throws Exception {
         String conn = "mongodb://" + user + ":" + pwd + "@";
         for (int i = 0; i < hosts.length; i++) {
             conn += (hosts[i] + ":" + ports[i] + ",");
         }
 
-        MongoClientSettings clientSettings = MongoClientSettings.builder()
+        CodecRegistry pojoCodecRegistry = fromProviders(PojoCodecProvider.builder().automatic(true).build());
+        codec_registry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), pojoCodecRegistry);
+        client_settings = MongoClientSettings.builder()
                 .applyConnectionString(new ConnectionString(conn.substring(0, conn.length() - 1)))
-                .codecRegistry(this.codec_registry)
+                .codecRegistry(codec_registry)
                 .readPreference(ReadPreference.secondaryPreferred())
                 .build();
-        this.clients.put(name, MongoClients.create(clientSettings));
+        client = MongoClients.create(client_settings);
     }
 
-    @Override
-    public Client create(String name) {
-        MongoClient client = this.clients.get(name);
-        if (client == null) {
-            return null;
+    public synchronized static SIRClient create() throws Exception {
+        return new SIRClient(client.getDatabase("sir").withCodecRegistry(codec_registry));
+    }
+
+    public static void close() {
+        try {
+            client.close();
         }
+        catch (Exception ex) {
 
-        return new MgoClient(client.getDatabase("trek").withCodecRegistry(this.codec_registry));
+        }
+        finally {
+            client = null;
+        }
     }
-
 }

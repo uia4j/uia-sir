@@ -12,12 +12,15 @@ public class HanaClient implements Client {
 
     private final Connection conn;
 
-    public HanaClient(Connection conn) {
+    private final boolean saveUTC;
+
+    public HanaClient(Connection conn, boolean saveUTC) {
         this.conn = conn;
+        this.saveUTC = saveUTC;
     }
 
     public HanaYesDao dao(String collectionName) {
-        return new HanaYesDao(this.conn, collectionName);
+        return new HanaYesDao(this.conn, collectionName, this.saveUTC);
     }
 
     @Override

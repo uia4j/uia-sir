@@ -16,6 +16,7 @@ import uia.sir.ds.mgo.db.MgoYesDao;
 import uia.sir.simple.Accumulator;
 import uia.sir.simple.QueryPlan;
 import uia.sir.simple.QueryRunner;
+import uia.sir.simple.ValueReader;
 
 public class MgoQueryRunner extends QueryRunner {
 
@@ -119,9 +120,14 @@ public class MgoQueryRunner extends QueryRunner {
 
     private List<Map<String, Object>> convert1(QueryPlan plan, MongoIterable<Document> docs) {
         List<Map<String, Object>> result = new ArrayList<>();
+
+        Map<String, ValueReader> readers = plan.getValueReaders();
         docs.forEach(d -> {
-            Map<String, Object> row = new TreeMap<>(d);
-            row.remove("_id");
+            d.remove("_id");
+            Map<String, Object> row = new TreeMap<>();
+            d.forEach((k, v) -> {
+                row.put(k, readers.getOrDefault(k, ValueReader.simple).apply(v));
+            });
             result.add(row);
         });
         return result;
@@ -134,7 +140,10 @@ public class MgoQueryRunner extends QueryRunner {
                 .collect(Collectors.toList());
         List<Map<String, Object>> result = new ArrayList<>();
         docs.forEach(d -> {
-            result.add(MgoYesDao.toRow(d, ofs));
+            result.add(MgoYesDao.toRow(
+                    plan.getValueReaders(),
+                    d,
+                    ofs));
         });
         return result;
     }

@@ -4,7 +4,7 @@ public class Accumulator {
 
     public static final String count = "count";
 
-    public static final String count_distinct = "countDistinct";
+    public static final String countDistinct = "countDistinct";
 
     public static final String sum = "sum";
 
@@ -25,7 +25,7 @@ public class Accumulator {
     }
 
     public static Accumulator countDistinctTo(String outputField, String accField) {
-        return new Accumulator(count_distinct, outputField, accField);
+        return new Accumulator(countDistinct, outputField, accField);
     }
 
     public static Accumulator sumTo(String outputField, String accField) {

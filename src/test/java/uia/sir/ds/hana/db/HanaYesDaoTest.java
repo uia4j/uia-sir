@@ -1,6 +1,7 @@
 package uia.sir.ds.hana.db;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,7 @@ public class HanaYesDaoTest extends AbstractTest {
                     .between("log_time", new Date(System.currentTimeMillis() - 3600000L * 16), new Date());
 
             // method
-            List<Map<String, Object>> data = client.dao("wafer_ct_done_log").select(fields, w);
+            List<Map<String, Object>> data = client.dao("wafer_ct_done_log").select(fields, w, Collections.emptyMap());
 
             // result
             data.forEach(System.out::println);
@@ -52,7 +53,7 @@ public class HanaYesDaoTest extends AbstractTest {
                     .sum("cycle_time", "cycle_time");
 
             // method
-            List<Map<String, Object>> data = client.dao("wafer_ct_done_log").aggregate(fields, w, acc);
+            List<Map<String, Object>> data = client.dao("wafer_ct_done_log").aggregate(fields, w, Collections.emptyMap(), acc);
 
             // result
             data.forEach(System.out::println);
@@ -76,7 +77,7 @@ public class HanaYesDaoTest extends AbstractTest {
                     .countDistinct("wafer_id", "wafer_id");
 
             // method
-            List<Map<String, Object>> data = client.dao("wafer_ct_done_log").daily(fields, "log_time", w, acc);
+            List<Map<String, Object>> data = client.dao("wafer_ct_done_log").daily(fields, "log_time", w, Collections.emptyMap(), acc);
 
             // result
             data.forEach(System.out::println);
@@ -99,7 +100,7 @@ public class HanaYesDaoTest extends AbstractTest {
                     .count("output");
 
             // method
-            List<Map<String, Object>> data = client.dao("wafer_ct_done_log").weekly(fields, "log_time", w, acc);
+            List<Map<String, Object>> data = client.dao("wafer_ct_done_log").weekly(fields, "log_time", w, Collections.emptyMap(), acc);
 
             // result
             data.forEach(System.out::println);
@@ -122,7 +123,7 @@ public class HanaYesDaoTest extends AbstractTest {
                     .count("output");
 
             // method
-            List<Map<String, Object>> data = client.dao("wafer_ct_done_log").monthly(fields, "log_time", w, acc);
+            List<Map<String, Object>> data = client.dao("wafer_ct_done_log").monthly(fields, "log_time", w, Collections.emptyMap(), acc);
 
             // result
             data.forEach(System.out::println);
@@ -145,7 +146,7 @@ public class HanaYesDaoTest extends AbstractTest {
                     .count("output");
 
             // method
-            List<Map<String, Object>> data = client.dao("wafer_ct_done_log").quarter(fields, "log_time", w, acc);
+            List<Map<String, Object>> data = client.dao("wafer_ct_done_log").quarter(fields, "log_time", w, Collections.emptyMap(), acc);
 
             // result
             data.forEach(System.out::println);

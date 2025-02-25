@@ -9,28 +9,29 @@ import uia.sir.ds.ClientFactory;
 
 public class HanaClientFactory extends ClientFactory {
 
-    private Map<String, ClientInfo> clients;
+    private final Map<String, ClientInfo> clients;
 
     public HanaClientFactory() {
         this.clients = new TreeMap<>();
     }
 
     @Override
-    public void register(String name, String ip, int port, String user, String pwd) throws Exception {
-        this.clients.put(name, new ClientInfo(
-                String.format("jdbc:sap://%s:%s?connectTimeout=5000&communicationTimeout=30000", ip, port),
+    public void register(String servName, String host, int port, String user, String pwd, boolean saveUTC) throws Exception {
+        this.clients.put(servName, new ClientInfo(
+                String.format("jdbc:sap://%s:%s?connectTimeout=5000&communicationTimeout=30000", host, port),
                 user,
-                pwd));
+                pwd,
+                saveUTC));
     }
 
     @Override
-    public void register(String name, String[] hosts, int port, String user, String pwd) throws Exception {
+    public void register(String name, String[] hosts, int[] ports, String user, String pwd, boolean saveUTC) throws Exception {
     }
 
     @Override
-    public Client create(String name) throws Exception {
-        ClientInfo info = this.clients.get(name);
-        return new HanaClient(DriverManager.getConnection(info.conn, info.user, info.pwd));
+    public Client create(String servName) throws Exception {
+        ClientInfo info = this.clients.get(servName);
+        return new HanaClient(DriverManager.getConnection(info.conn, info.user, info.pwd), info.saveUTC);
     }
 
     class ClientInfo {
@@ -41,10 +42,13 @@ public class HanaClientFactory extends ClientFactory {
 
         final String pwd;
 
-        ClientInfo(String conn, String user, String pwd) {
+        final boolean saveUTC;
+
+        ClientInfo(String conn, String user, String pwd, boolean saveUTC) {
             this.conn = conn;
             this.user = user;
             this.pwd = pwd;
+            this.saveUTC = saveUTC;
         }
     }
 }

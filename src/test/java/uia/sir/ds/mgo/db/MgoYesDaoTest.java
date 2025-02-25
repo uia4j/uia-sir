@@ -1,6 +1,7 @@
 package uia.sir.ds.mgo.db;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -92,7 +93,7 @@ public class MgoYesDaoTest extends AbstractTest {
 
             // result
             docs.forEach(d -> {
-                System.out.println(MgoYesDao.toRow(d, "count", "qty"));
+                System.out.println(MgoYesDao.toRow(Collections.emptyMap(), d, "count", "qty"));
             });
         }
     }
@@ -119,7 +120,7 @@ public class MgoYesDaoTest extends AbstractTest {
 
             // result
             docs.forEach(d -> {
-                System.out.println(MgoYesDao.toRow(d, "output"));
+                System.out.println(MgoYesDao.toRow(Collections.emptyMap(), d, "output"));
             });
         }
     }
@@ -146,7 +147,7 @@ public class MgoYesDaoTest extends AbstractTest {
 
             // result
             docs.forEach(d -> {
-                System.out.println(MgoYesDao.toRow(d, "output"));
+                System.out.println(MgoYesDao.toRow(Collections.emptyMap(), d, "output"));
             });
         }
     }
@@ -173,7 +174,7 @@ public class MgoYesDaoTest extends AbstractTest {
 
             // result
             docs.forEach(d -> {
-                System.out.println(MgoYesDao.toRow(d, "output"));
+                System.out.println(MgoYesDao.toRow(Collections.emptyMap(), d, "output"));
             });
         }
     }
@@ -200,7 +201,7 @@ public class MgoYesDaoTest extends AbstractTest {
 
             // result
             docs.forEach(d -> {
-                System.out.println(MgoYesDao.toRow(d, "output"));
+                System.out.println(MgoYesDao.toRow(Collections.emptyMap(), d, "output"));
             });
         }
     }

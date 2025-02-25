@@ -21,6 +21,8 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
+import uia.sir.simple.ValueReader;
+
 public class MgoYesDao {
 
     protected MongoDatabase database;
@@ -171,18 +173,19 @@ public class MgoYesDao {
         return new TreeMap<String, Object>(aggRow);
     }
 
-    public static Map<String, Object> toRow(Document aggRow, String... others) {
-        Map<String, Object> result = new TreeMap<String, Object>((Document) aggRow.get("_id"));
-        for (String one : others) {
-            result.put(one, aggRow.get(one));
-        }
-        return result;
+    public static Map<String, Object> toRow(Map<String, ValueReader> readers, Document aggRow, String... extra) {
+        return toRow(readers, aggRow, Arrays.asList(extra));
     }
 
-    public static Map<String, Object> toRow(Document aggRow, List<String> others) {
-        Map<String, Object> result = new TreeMap<String, Object>((Document) aggRow.get("_id"));
-        for (String one : others) {
-            result.put(one, aggRow.get(one));
+    public static Map<String, Object> toRow(Map<String, ValueReader> readers, Document aggRow, List<String> extra) {
+        Map<String, Object> result = new TreeMap<>();
+
+        Document key = (Document) aggRow.remove("_id");
+        key.forEach((k, v) -> {
+            result.put(k, readers.getOrDefault(k, ValueReader.simple).apply(v));
+        });
+        for (String one : extra) {
+            result.put(one, readers.getOrDefault(one, ValueReader.simple).apply(aggRow.get(one)));
         }
         return result;
     }

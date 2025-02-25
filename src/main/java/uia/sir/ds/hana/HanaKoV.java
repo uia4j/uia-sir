@@ -28,16 +28,16 @@ public class HanaKoV {
     private HanaKoV() {
     }
 
-    public static SimpleWhere and(List<KoV> vs) {
-        SimpleWhere w = Where.simpleAnd();
+    public static SimpleWhere and(List<KoV> vs, boolean toUTC) {
+        SimpleWhere w = Where.simpleAnd(toUTC);
         for (KoV v : vs) {
             builders.get(v.getOp()).run(w, v);
         }
         return w;
     }
 
-    public static SimpleWhere or(List<KoV> vs) {
-        SimpleWhere w = Where.simpleOr();
+    public static SimpleWhere or(List<KoV> vs, boolean toUTC) {
+        SimpleWhere w = Where.simpleOr(toUTC);
         for (KoV v : vs) {
             builders.get(v.getOp()).run(w, v);
         }

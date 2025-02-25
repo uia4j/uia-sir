@@ -11,6 +11,7 @@ public class AbstractTest {
                 "10.160.2.38",
                 30015,
                 "ROAD",
-                "Road12345");
+                "Road12345",
+                true);
     }
 }

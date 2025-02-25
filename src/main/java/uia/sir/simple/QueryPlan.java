@@ -2,6 +2,8 @@ package uia.sir.simple;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class QueryPlan {
 
@@ -23,6 +25,8 @@ public class QueryPlan {
 
     private final List<String> columns;
 
+    private final Map<String, ValueReader> readers;
+
     private final List<KoV> criteria;
 
     private final List<String> orderBy;
@@ -40,6 +44,7 @@ public class QueryPlan {
         this.collectionName = collectionName;
         this.method = method;
         this.columns = new ArrayList<>();
+        this.readers = new TreeMap<>();
         this.criteria = new ArrayList<>();
         this.orderBy = new ArrayList<>();
         this.accumulators = new ArrayList<>();
@@ -59,6 +64,21 @@ public class QueryPlan {
 
     public QueryPlan addColumn(String column) {
         this.columns.add(column);
+        return this;
+    }
+
+    public QueryPlan addColumn(String column, ValueReader reader) {
+        this.columns.add(column);
+        this.readers.put(column, reader);
+        return this;
+    }
+
+    public Map<String, ValueReader> getValueReaders() {
+        return this.readers;
+    }
+
+    public QueryPlan addValueReader(String column, ValueReader reader) {
+        this.readers.put(column, reader);
         return this;
     }
 
@@ -96,5 +116,4 @@ public class QueryPlan {
     public void setTimeColumn(String timeColumn) {
         this.timeColumn = timeColumn;
     }
-
 }
